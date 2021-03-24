@@ -132,12 +132,12 @@ public final class AWSSecretsManagerOracleDriver extends AWSSecretsManagerDriver
 
     @Override
     public String constructUrlFromEndpointPortDatabase(String endpoint, String port, String dbname) {
-        String url = "jdbc:oracle:thin:@//" + endpoint;
+        String url = "jdbc:oracle:thin:@" + endpoint;
         if (!StringUtils.isEmpty(port)) {
             url += ":" + port;
         }
         if (!StringUtils.isEmpty(dbname)) {
-            url += "/" + dbname;
+            url += ":" + dbname;
         }
         return url;
     }
