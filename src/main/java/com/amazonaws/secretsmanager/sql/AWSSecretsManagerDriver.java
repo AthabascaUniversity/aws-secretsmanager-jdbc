@@ -378,14 +378,17 @@ public abstract class AWSSecretsManagerDriver implements Driver {
         }
 
         String unwrappedUrl = "";
+        String credentialsSecretId;
         if (url.startsWith(SCHEME)) { // If this is a URL in the correct scheme, unwrap it
             unwrappedUrl = unwrapUrl(url);
+            credentialsSecretId = (info != null) ? info.getProperty("user") : null;
         } else { // Else, assume this is a secret ID and try to retrieve it
             String secretString = secretCache.getSecretString(url);
             if (secretString == null || StringUtils.isEmpty(secretString)) {
                 throw new IllegalArgumentException("URL " + url + " is not a valid URL starting with scheme " +
                         SCHEME + " or a valid retrievable secret ID ");
             }
+            credentialsSecretId = url;
 
             try {
                 JsonNode jsonObject = mapper.readTree(secretString);
@@ -401,8 +404,7 @@ public abstract class AWSSecretsManagerDriver implements Driver {
             }
         }
 
-        if (info != null && info.getProperty("user") != null) {
-            String credentialsSecretId = info.getProperty("user");
+        if (credentialsSecretId != null) {
             try {
                 return connectWithSecret(unwrappedUrl, info, credentialsSecretId);
             } catch (InterruptedException e) {
